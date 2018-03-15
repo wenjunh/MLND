@@ -12016,6 +12016,10 @@ div#notebook {
 <span class="c1">#print len(data[data[&#39;income&#39;] == &#39;&gt;50K&#39;])</span>
 <span class="c1">##</span>
 
+<span class="c1">## Another alternative way</span>
+<span class="c1"># n_at_most_50k, n_greater_50k = data.income.value_counts()</span>
+<span class="c1">##</span>
+
 <span class="c1"># Number of records where individual&#39;s income is more than $50,000</span>
 <span class="n">n_greater_50k</span> <span class="o">=</span> <span class="n">income_distr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
@@ -12447,6 +12451,12 @@ Percentage of individuals making more than $50,000: 24.78%
 <span class="n">income_map</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;&lt;=50K&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;&gt;50K&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
 <span class="n">income</span> <span class="o">=</span> <span class="n">income_raw</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">income_map</span><span class="p">))</span>
 
+<span class="c1">##Alternative way</span>
+<span class="c1"># from sklearn.preprocessing import LabelEncoder</span>
+<span class="c1"># encoder = LabelEncoder()</span>
+<span class="c1"># income = encoder.fit_transform(income_raw)</span>
+<span class="c1">##</span>
+
 <span class="c1"># Print the number of features after one-hot encoding</span>
 <span class="n">encoded</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">features_final</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;{} total features after one-hot encoding.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">encoded</span><span class="p">)))</span>
@@ -12690,6 +12700,16 @@ It is a ratio of true positives(words classified as spam, and which are actually
 <p>The weakness of the model is it can only find a linear decision boundary, since it's derived from linear regression. Therefore, even at high dimensional hyperspace, the decision boundary is a hyperplane. This could be useful when applied to high dimensional data with fewer data points (the curse of dimensionality) as a high bias model is often desired in the situation.</p>
 <p>Logistic regression is in the calssification algorithm family and therefore a candidate for our problem on hand.</p>
 <p>Even though I do not expect the dataset to be linear seperatable, logistic regression is fast in training, easy to implement, and scale well to large data size for potential future business use. In addition, logistic regression can provide the probability index of whether an individual has earning more than 50K, which could also potentially benefit the business.</p>
+<p>*additional comments</p>
+<p>Decision Trees
+You're right that they can tend to suffer from over-fitting unless we're careful about tuning them. As you probably remember from the model validation project,the max<em>depth parameter can be a useful starting point for reducing overfitting.
+Another popular method is pruning:
+<a href="https://en.wikipedia.org/wiki/Pruning">https://en.wikipedia.org/wiki/Pruning</a></em>(decision_trees)
+Although pruning is not strictly supported in sklearn, tuning the min_impurity_splithyper-parameter serves is a great replacement.
+<a href="http://blog.nelsonliu.me/2016/08/05/gsoc-week-10-scikit-learn-pr-6954-adding-pre-pruning-to-decisiontrees/">http://blog.nelsonliu.me/2016/08/05/gsoc-week-10-scikit-learn-pr-6954-adding-pre-pruning-to-decisiontrees/</a></p>
+<p>Logistic Regression
+You might find that it's difficult to get extra performance out of this model in the hyperparameter tuning phase. This is a consequence of the high-bias nature of the model. One workaround we can use is to perform some clever feature engineering. By creating new features that are non-linear combinations of existing features, we can allow logistic regression to learn more complex relationships in the data.
+You can use the PolynomialFeatures class in sklearn to do the legwork here.</p>
 
 </div>
 </div>
@@ -12977,7 +12997,15 @@ Look at the graph at the bottom left from the cell above(the visualization creat
 <p>The decision tree classifier used here looks for features that best seperates the data into two groups. The features are the attributes of each person (i.e. sex, age, education years etc.), the two groups are income level greater than 50K and less than 50K. The algorithm works similar to the game 20 questions. Suppose we only have two features, age and education years. The best strategy would be ask whether a person is over 30 years old or not, if everyone who earn over 50K are over 30 years old. The next question is to ask whether a person received over 10 years of education, where supposly 10 years is a good seperator for people's income level. As a result, the model predicts everyone who is older than 30 and have received more than 10 years of education to have income more than 50K.</p>
 <p>This model works the best if there are a number of features in the data set that gives good seperation of the data, which seems to be the case in our problem on hand. Therefore, we want to further fine tuning the model on our data set.</p>
 <p>Note: the next paragraph is purely for practice purpose. Please let me know if the explanation can be improved.</p>
-<p>The logistic regression model employed here looks for a line (in 2D) and a hyperplane (in higher dimension) to seperate the data into two groups. The axes here are the attributes of each persion (i.e. sex, age, education years etc.), the two groups are income level greter than 50K and less than 50K. Supposly we only have two features, age and education years. The model will try to fit a line a<em>x_1 + b</em>x_2 + c to achieve best seperation of the data. A unique feature of logistic regression is that it produces the liklihood of a data point belonging to a group. In addition, the model runs very fast and easy to scale to large training set size.**</p>
+<p>The logistic regression model employed here looks for a line (in 2D) and a hyperplane (in higher dimension) to seperate the data into two groups. The axes here are the attributes of each persion (i.e. sex, age, education years etc.), the two groups are income level greter than 50K and less than 50K. Supposly we only have two features, age and education years. The model will try to fit a line a<em>x_1 + b</em>x_2 + c to achieve best seperation of the data. A unique feature of logistic regression is that it produces the liklihood of a data point belonging to a group. In addition, the model runs very fast and easy to scale to large training set size.</p>
+<p><em>additional sources</em>
+Being able to explain a model in simple terms is a really important asset in business, as many of the people you'll be working with won't have the technical background you do. For this reason you should try to get a similar handle on other popular ML models.
+You can use the resources provided below to get a head start in this.
+<a href="https://rayli.net/blog/data/top-10-data-mining-algorithms-in-plain-english/">https://rayli.net/blog/data/top-10-data-mining-algorithms-in-plain-english/</a>
+<a href="http://blog.echen.me/2011/03/14/laymans-introduction-to-random-forests/">http://blog.echen.me/2011/03/14/laymans-introduction-to-random-forests/</a>
+<a href="https://prateekvjoshi.com/2014/05/05/what-is-adaboost/">https://prateekvjoshi.com/2014/05/05/what-is-adaboost/</a>
+<a href="http://xgboost.readthedocs.io/en/latest/model.html">http://xgboost.readthedocs.io/en/latest/model.html</a>
+**</p>
 
 </div>
 </div>
@@ -13088,6 +13116,16 @@ Final F-score on the testing data: 0.7213
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>If you're interested, I highly recommend reading the blog post below. It does a phenomenal job of illustrating why you'd want to use a <strong>Random Search</strong> over a <strong>Grid Search</strong>.
+<a href="https://medium.com/rants-on-machine-learning/smarter-parameter-sweeps-or-why-grid-search-is-plain-stupid-c17d97a0e881">https://medium.com/rants-on-machine-learning/smarter-parameter-sweeps-or-why-grid-search-is-plain-stupid-c17d97a0e881</a></p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
@@ -13370,6 +13408,19 @@ F-score on testing data: 0.6840
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>There are a ton of other methods we can use to extract the feature importances in our data. You might remember some of the simpler univariate methods like SelectKBest and SelectPercentile. 
+We can also try more complex methods like Recursive Feature Elimination. This technique recursively cuts out the feature that contributes least to the model, and then re-evaluates the model after the elimination. This process repeats until we have the desired number of features.
+If you're interested in checking this technique or others, take a look at the posts below
+<a href="http://blog.datadive.net/selecting-good-features-part-iv-stability-selection-rfe-and-everything-side-by-side/">http://blog.datadive.net/selecting-good-features-part-iv-stability-selection-rfe-and-everything-side-by-side/</a>
+<a href="https://topepo.github.io/caret/recursive-feature-elimination.html">https://topepo.github.io/caret/recursive-feature-elimination.html</a></p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div>
