@@ -8,3 +8,5 @@ List of the projects:
 4) Student Intervention Prediction (Decision Tree, Random Forest, KNN Classification)
 5) Student Admission Prediction (Neural Network, Tensorflow)
 6) IMDB Sentiment Prediction (Neural Network, Tensorflow)
+7) Dog Breed Prediction (Deep Neural Network, Convolutional Neural Network, Tensorflow, InceptionV3)
+8) Customer Segmentation (K-Means, Gaussian Mixture Models)
